@@ -688,7 +688,10 @@ namespace at.jku.ssw.cc
                     methodDecl.Nodes.Add("')'");
                     MessageBoxCon3Preg();
                 }
-                
+
+
+
+                /*
                 //Comienza Nodo Declaration.
                 System.Windows.Forms.TreeNode posDeclars = new System.Windows.Forms.TreeNode("PosDeclars");
                 methodDecl.Nodes.Add(posDeclars);
@@ -748,6 +751,11 @@ namespace at.jku.ssw.cc
                 MessageBoxCon3Preg();
                 Code.seleccLaProdEnLaGram(8);
                 MessageBoxCon3Preg();
+                
+                 */
+
+
+
                 //Comienza Block
                 Block(methodDecl);  //Bloque dentro de MethodDecl() 
                 curMethod.nArgs = Tab.topScope.nArgs;
@@ -1302,6 +1310,77 @@ namespace at.jku.ssw.cc
                 }
             }
         } // Fin Statement
+        //-----------------------------------------------------------------------------------------------------------------------------------------------
+        static void DeclarOrStat(System.Windows.Forms.TreeNode DeclarOrStatementsOpc)
+        {
+            System.Windows.Forms.TreeNode DeclOStat = new System.Windows.Forms.TreeNode("DeclarOrStat");
+            Code.seleccLaProdEnLaGram(38);
+            DeclarOrStatementsOpc.Nodes.Add(DeclOStat);
+            DeclarOrStatementsOpc.ExpandAll();
+            MessageBoxCon3Preg(DeclOStat);
+            switch (la)
+            {
+                case Token.CONST:
+                    System.Windows.Forms.TreeNode Declaration = new System.Windows.Forms.TreeNode("Declaration");
+                    Code.seleccLaProdEnLaGram(2);
+                    DeclOStat.Nodes.Add(Declaration);
+                    DeclOStat.ExpandAll();
+                    ConstDecl(Declaration);
+                    break;
+                case Token.IDENT:
+                    if(laToken.str == "int" || laToken.str == "char")
+                    {
+                        System.Windows.Forms.TreeNode Hijo = new System.Windows.Forms.TreeNode("Declaration");
+                        Code.seleccLaProdEnLaGram(2);
+                        DeclOStat.Nodes.Add(Hijo);
+                        DeclOStat.ExpandAll();
+                        Console.WriteLine(la);
+                        //declaracionDeVariable()
+                        Code.cargaProgDeLaGram("Declaration = VarDecl.");
+                        System.Windows.Forms.TreeNode hijo1 = new System.Windows.Forms.TreeNode("Declaration = VarDecl.");
+                        Hijo.Nodes.Add(hijo1);
+                        Code.seleccLaProdEnLaGram(6);
+                        Code.cargaProgDeLaGram("VarDecl = Type  ident IdentifiersOpc ';'.");
+                        Code.seleccLaProdEnLaGram(12);
+                        Code.cargaProgDeLaGram("Type = ident LbrackOpc."); //ya pintó el ident (por ej "int en int ii);
+                        VardDecl(Symbol.Kinds.Global, hijo1); //En program  //Table val;
+                    }
+                    else
+                    {
+                        Code.Colorear("latoken");
+                        System.Windows.Forms.TreeNode statement = new System.Windows.Forms.TreeNode("Statement");
+                        DeclOStat.Nodes.Add(statement);
+                        DeclOStat.ExpandAll();
+                        MessageBoxCon3Preg(statement);
+                        Code.seleccLaProdEnLaGram(18);
+                        Statement(statement); 
+                    }
+                    break;
+                case Token.IF:
+                case Token.WHILE:
+                case Token.BREAK:
+                case Token.RETURN:
+                case Token.READ:
+                case Token.WRITE:
+                case Token.WRITELN:
+                case Token.LBRACE:
+                case Token.SEMICOLON:
+                    Code.Colorear("latoken");
+                    System.Windows.Forms.TreeNode sentencia = new System.Windows.Forms.TreeNode("Statement");
+                    DeclOStat.Nodes.Add(sentencia);
+                    DeclOStat.ExpandAll();
+                    MessageBoxCon3Preg(sentencia);
+                    Code.seleccLaProdEnLaGram(18);
+                    Statement(sentencia);
+                    break;
+            }
+
+        }
+
+
+
+//-------------------------------------------------------------------------------------------------------------------------
+
 
         /// G3 PERUBLOCK Arreglado el arbol de StatementsOpc cuando esta vacio (".")
         /// Y todos los nombres y padre en Block.
@@ -1318,8 +1397,28 @@ namespace at.jku.ssw.cc
             block.ExpandAll();
             MessageBoxCon3Preg(methodDecl);
             Code.Colorear("token");
+            System.Windows.Forms.TreeNode DeclarOrStatementsOpc = new System.Windows.Forms.TreeNode("DeclarOrStatementsOpc");
+            block.Nodes.Add(DeclarOrStatementsOpc);
+            block.ExpandAll();
+            Code.seleccLaProdEnLaGram(37);
+            bool hayDeclaracionesOSentencias = false;
+            while(la != Token.RBRACE && la != Token.EOF)
+            {
+                DeclarOrStat(DeclarOrStatementsOpc);
+                hayDeclaracionesOSentencias = true;
+            }
+            if (!hayDeclaracionesOSentencias)
+            {
+                DeclarOrStatementsOpc.Nodes.Add(".");
+                DeclarOrStatementsOpc.ExpandAll(); //Visualiza (Expande) posDeclars
+                Parser.MessageBoxCon3Preg();
+            }
+
+
+
+            //-----------------------------------------------------------------------------------------------------------------------------------
             /////// Agrega 'StatementsOpc' al arbol
-            System.Windows.Forms.TreeNode statementsopc = new System.Windows.Forms.TreeNode("StatementsOpc");
+            /*System.Windows.Forms.TreeNode statementsopc = new System.Windows.Forms.TreeNode("StatementsOpc");
             block.Nodes.Add(statementsopc);
             block.ExpandAll();
             MessageBoxCon3Preg(block);
@@ -1362,7 +1461,7 @@ namespace at.jku.ssw.cc
                 }
                 ii++;
                 Code.seleccLaProdEnLaGram(17);
-            }//Fin while
+            }//Fin while*/
             MessageBoxCon3Preg();
             Check(Token.RBRACE);
             Code.seleccLaProdEnLaGram(16);
