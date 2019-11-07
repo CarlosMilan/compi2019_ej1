@@ -1402,6 +1402,7 @@ namespace at.jku.ssw.cc
             block.ExpandAll();
             Code.seleccLaProdEnLaGram(37);
             bool hayDeclaracionesOSentencias = false;
+            Code.CreateMetadata(curMethod); //Faltaba colgar el metadato, debido a esto saltaba una excepcion 
             while(la != Token.RBRACE && la != Token.EOF)
             {
                 DeclarOrStat(DeclarOrStatementsOpc);
